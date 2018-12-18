@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -65,10 +66,12 @@ public class BoardController {
 		
 	}
 	@GetMapping("/register")
+	@PreAuthorize("isAuthenticated()")
 	public void register() {
 		
 	}
 	@PostMapping("/register")
+	@PreAuthorize("isAuthenticated()")
 	public String register(BoardVO board, RedirectAttributes rttr) {
 		log.info("register...");
 		//bno 값은 언제 들어가게 되는건가?
@@ -84,6 +87,7 @@ public class BoardController {
 		log.info("/get...");
 		model.addAttribute("board",service.get(bno));
 	}
+	@PreAuthorize("principal.username == #board.writer")
 	@PostMapping("/modify")
 	public String modify(BoardVO board,@ModelAttribute("cri") Criteria cri, RedirectAttributes rttr) {
 		log.info("update... ");
@@ -97,6 +101,7 @@ public class BoardController {
 		return "redirect:/board/list";
 		
 	}
+	@PreAuthorize("principal.username == #writer")
 	@PostMapping("/remove")
 	public String remove(Long bno,@ModelAttribute("cri") Criteria cri, RedirectAttributes rttr) {
 		

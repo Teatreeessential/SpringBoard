@@ -2,6 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec" %>
 <%@ page session="false"%>
 
 <!DOCTYPE html>
@@ -61,20 +62,24 @@
 						</div>
 						<div class="form-group">
 							<label>Writer</label> <input class="form-control" name='writer' readonly="readonly"
-								value="<c:out value="${board.writer}"/>">
+								  value="<c:out value="${board.writer}"/>">
 						</div>
 						<input type ="hidden" name="pageNum" value="<c:out value='${cri.pageNum}'/>"/>
 						<input type ="hidden" name="amount" value="<c:out value='${cri.amount}'/>"/>
 						<input type ="hidden" name="keyword" value="<c:out value='${cri.keyword}'/>"/>
 						<input type ="hidden" name="type" value="<c:out value='${cri.type}'/>"/>
-							
-						<button data-oper="modify" type="submit" class="btn btn-default">
-							Modify</button>
-						<button data-oper="remove" type="submit" class="btn btn-danger">
-							Remove</button>
+						<sec:authentication property="principal" var="pinfo"/>
+						<sec:authorize access="isAuthenticated()">
+							<c:if test="${pinfo.username eq board.userwriter }">
+							<button data-oper="modify" type="submit" class="btn btn-default">
+								Modify</button>
+							<button data-oper="remove" type="submit" class="btn btn-danger">
+								Remove</button>
+							</c:if>
+						</sec:authorize>
 						<button data-oper="list" type="submit" class="btn btn-info">
 							List</button>
-						
+						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token }"/>
 					</form>
 				</div>
 
@@ -169,6 +174,8 @@
 
 			}
 			//첨부파일 추가
+			var csrfname ="${_csrf.headerName}";
+			var csrfvalue = "${_csrf.token}"
 			$("input[type='file']").on("change",function(e){
 				let formData = new FormData();
 
@@ -185,6 +192,9 @@
 					url:'/uploadAjaxAction',
 					processData:false,
 					contentType:false,
+					beforeSend: function(xhr){
+						xhr.setRequestHeader(csrfname,csrfvalue);
+					},
 					data:formData,
 					type:'post',
 					datatype:'json',

@@ -2,6 +2,8 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec"%>
+
 <%@ page session="false"%>
 
 <!DOCTYPE html>
@@ -63,8 +65,13 @@
 							readonly="readonly" value="<c:out value="${board.writer}"/>">
 					</div>
 					<div class="board_button">
-						<button data-oper="modify" class="btn btn-default">Modify
-						</button>
+						<sec:authentication property="principal" var="pinfo"/>
+							<sec:authorize access="isAuthenticated()">
+								<c:if test="${pinfo.username eq board.writer}">
+									<button data-oper="modify" class="btn btn-default">Modify</button>
+								</c:if>
+							</sec:authorize>
+						
 						<button data-oper="list" class="btn btn-info">List</button>
 					</div>
 					<form id="operForm" action="/board/modify" method="get">
@@ -99,9 +106,10 @@
 	<!-- 댓글창  -->
 
 		<div class="panel-heading">
-			<i class="fa fa-comments fa-fw"></i> Chat
-			<button id="addreplyBtn" class="btn btn-xs pull-right">
-				Register New Reply</button>
+			<i class="fa fa-comments fa-fw"></i> Reply
+			<sec:authorize access="isAuthenticated()">
+				<button id="addreplyBtn" class="btn btn-xs pull-right">Register New Reply</button>
+			</sec:authorize>
 		</div>
 		<!-- /.panel-heading -->
 		<div class="panel-body">
@@ -125,11 +133,10 @@
 				<div class="modal-body">
 					<div class="form-group">
 						<label>replyer</label> <input class="form-control" name='replyer'
-							value="<c:out value="${board.bno}"/>">
+							value="<c:out value="${board.bno}"/>" readonly="readonly">
 					</div>
 					<div class="form-group">
-						<label>reply</label> <input class="form-control" name='reply'
-							value="<c:out value="${board.bno}"/>">
+						<label>reply</label> <input class="form-control" name='reply'>
 					</div>
 					<div class="form-group">
 						<label>reply date</label> <input class="form-control"
@@ -157,10 +164,13 @@
 <%@include file="../includes/footer.jsp"%>
 <script type="text/javascript" src="/resources/js/Reply.js"></script>
 <script type="text/javascript">
+
 $(document).ready(
 		
-
+					
 						function() {
+							
+
 							
 							(function(){
 								let bno = "<c:out value='${board.bno}'/>";
@@ -169,6 +179,10 @@ $(document).ready(
 									showUploadResult(arr);
 								});
 							})();
+							
+						
+							
+							
 							console.log("test");
 							var bnoValue = '<c:out value="${board.bno}"/>';
 							var replyUL = $(".chat");
@@ -313,16 +327,32 @@ $(document).ready(
 									.find("input[name='replyer']");
 							var modalInputReplyDate = modal
 									.find("input[name='replyDate']");
-
+							
 							var modalModBtn = $("#modalModBtn");
 							var modalRemoveBtn = $("#modalRemoveBtn");
 							var modalRegisterBtn = $("#modalRegisterBtn");
+							
+							var replyer = null;
+							
+							<sec:authorize access="isAuthenticated()">
+								replyer ='<sec:authentication property="principal.username"/>';
+								var csrfname = "${_csrf.headerName}";
+								var csrfvalue = "${_csrf.token}";
+								$(document).ajaxSend("click",function(e,xhr,options){
+									xhr.setRequestHeader(csrfname,csrfvalue);
+								})
+								
+							
+							</sec:authorize>
+							
+						
 
+							
 							$("#addreplyBtn").on(
 									"click",
 									function(e) {
 										e.preventDefault();
-										modal.find("input").val("");
+										modal.find("input[name='replyer']").val(replyer);
 										modalInputReplyDate.closest("div")
 												.hide();
 										modal.find(
@@ -332,6 +362,9 @@ $(document).ready(
 										modalRegisterBtn.show();
 										$(".modal").modal("show");
 									});
+
+							
+							
 							modalRegisterBtn.on("click",function(e){
 								let reply = {
 										replyer:modalInputReplyer.val(),
@@ -364,9 +397,23 @@ $(document).ready(
 								})
 							})
 							modalModBtn.on("click",function(e){
+								let originalReplyer = modalInputReplyer.val();
+								
+								if(!replyer){
+									alert('로그인 후 수정 할 수 있습니다.');
+									modal.modal("hide");
+									return;
+								}
+								if(originalReplyer != replyer){
+									alert('자신이 작성한 댓글만 수정이 가능합니다.');
+									modal.modal('hide');
+									return;
+								}
+								
 								let reply = {
 										rno:modal.data("rno"),
-										reply: modalInputReply.val()
+										reply: modalInputReply.val(),
+										replyer: replyer
 								};
 								
 								replyService.update(reply,function(result){
@@ -377,7 +424,24 @@ $(document).ready(
 							})
 							modalRemoveBtn.on("click",function(e){
 								let rno = modal.data("rno");
-								replyService.remove(rno,function(result){
+								
+								if(!replyer){
+									alert('로그인 후 삭제가 가능합니다.');
+									modal.modal('hide');
+									return;
+								}
+								
+								var orginalReplyer = modalInputReplyer.val();
+								
+								if(replyer != orginalReplyer){
+									alert("자신이 작성한 댓글만 삭제가 가능합니다.");
+									modal.modal("hide");
+									return;
+								}
+								
+								
+								
+								replyService.remove(rno,replyer,function(result){
 									alert(result);
 									modal.modal("hide");
 									showList(pageNum);

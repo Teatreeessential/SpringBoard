@@ -38,7 +38,6 @@
 	<context:component-scan base-package="org.zerock.task">
 	</context:component-scan>
 	<task:annotation-driven/>
-	
 
 	
 </beans>

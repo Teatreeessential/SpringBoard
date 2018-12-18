@@ -2,6 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec" %>
 <%@ page session="false" %>
 
 <!DOCTYPE html>
@@ -60,7 +61,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.html">SB Admin v2.0</a>
+                <a class="navbar-brand" href="/board/list">SB Admin v2.0</a>
             </div>
             <!-- /.navbar-header -->
 
@@ -264,9 +265,17 @@
                         </li>
                         <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
                         </li>
+                        
                         <li class="divider"></li>
-                        <li><a href="login.html"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                        <sec:authorize access="isAuthenticated()">
+                        <li id="logout"><a href="logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
                         </li>
+                    	</sec:authorize>
+                    	<sec:authorize access="isAnonymous()">
+                        <li id="login"><a href="/customLogin"><i class="fa fa-sign-out fa-fw"></i> Login</a>
+                        </li>
+                    	</sec:authorize>
+                    	
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
@@ -385,6 +394,28 @@
         <div id="page-wrapper">
         
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-		
+<script scr="text/javacsript">
+	$(document).ready(function(){
+		<sec:authorize access="isAuthenticated()">
+			var replyer ='<sec:authentication property="principal.username"/>';
+			var csrfname = "${_csrf.headerName}";
+			var csrfvalue = "${_csrf.token}";
+			$(document).ajaxSend("click",function(e,xhr,options){
+				xhr.setRequestHeader(csrfname,csrfvalue);
+			})
+		</sec:authorize>
+		$("a[href='logout']").on("click",function(e){
+			e.preventDefault();
+			$.ajax({
+				type:"post",
+				url:"/customLogout",
+				success:function(result){
+					alert(replyer+'님이 로그아웃 되셨습니다.');
+					location.href="/board/list";
+				}
+			})
+		})
+	})
+</script>
 </body>
 </html>
