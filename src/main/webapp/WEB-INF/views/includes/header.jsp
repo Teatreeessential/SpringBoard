@@ -16,23 +16,14 @@
 
 <title>SB Admin 2 - Bootstrap Admin Theme</title>
 
+<!-- Bootstrap Core JavaScript -->
+<script src="/resources/vendor/jquery/jquery.min.js"></script>
 <!-- Bootstrap Core CSS -->
 <link href="/resources/vendor/bootstrap/css/bootstrap.min.css"
 	rel="stylesheet">
 
-<!-- MetisMenu CSS -->
-<link href="/resources/vendor/metisMenu/metisMenu.min.css"
-	rel="stylesheet">
-
-<!-- DataTables CSS -->
-<link
-	href="/resources/vendor/datatables-plugins/dataTables.bootstrap.css"
-	rel="stylesheet">
-
-<!-- DataTables Responsive CSS -->
-<link
-	href="/resources/vendor/datatables-responsive/dataTables.responsive.css"
-	rel="stylesheet">
+<!-- bootstrap js-->
+<script src="/resources/vendor/bootstrap/js/bootstrap.js"></script>
 
 <!-- Custom CSS -->
 <link href="/resources/dist/css/sb-admin-2.css" rel="stylesheet">
@@ -393,14 +384,13 @@
 
         <div id="page-wrapper">
         
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script scr="text/javacsript">
 	$(document).ready(function(){
 		<sec:authorize access="isAuthenticated()">
 			var replyer ='<sec:authentication property="principal.username"/>';
 			var csrfname = "${_csrf.headerName}";
 			var csrfvalue = "${_csrf.token}";
-			$(document).ajaxSend("click",function(e,xhr,options){
+			$(document).ajaxSend(function(e,xhr,options){
 				xhr.setRequestHeader(csrfname,csrfvalue);
 			})
 		</sec:authorize>

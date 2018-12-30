@@ -161,7 +161,11 @@
 
 
 
-<%@include file="../includes/footer.jsp"%>
+
+
+
+
+</body>
 <script type="text/javascript" src="/resources/js/Reply.js"></script>
 <script type="text/javascript">
 
@@ -186,19 +190,23 @@ $(document).ready(
 							console.log("test");
 							var bnoValue = '<c:out value="${board.bno}"/>';
 							var replyUL = $(".chat");
-							let pageNum = -1;
+							var pageNum = 1;
 							showList(pageNum);
 							
 							//reply관련 페이징과 리스트						
 							
 							let replyPageFooter = $(".panel-footer");
+							
+							
+							function showReplyPage(replyCnt,pageNum){
+								
 
-							function showReplyPage(replyCnt){
 									
 								let endnum = Math.ceil(pageNum/10.0) * 10;
 								let startnum = endnum - 9;
 								let prev = startnum != 1;
 								let next = false;
+								
 								
 								
 								if(replyCnt < endnum*10 ){
@@ -304,7 +312,7 @@ $(document).ready(
 														}
 														
 														replyUL.html(str);
-														showReplyPage(replyCnt);
+														showReplyPage(replyCnt,page);
 													}
 
 												})
@@ -321,6 +329,7 @@ $(document).ready(
 							
 							//reply 등록 조회 수정 삭제
 							var modal = $(".modal");
+							console.log(modal)
 							var modalInputReply = modal
 									.find("input[name='reply']");
 							var modalInputReplyer = modal
@@ -338,9 +347,7 @@ $(document).ready(
 								replyer ='<sec:authentication property="principal.username"/>';
 								var csrfname = "${_csrf.headerName}";
 								var csrfvalue = "${_csrf.token}";
-								$(document).ajaxSend("click",function(e,xhr,options){
-									xhr.setRequestHeader(csrfname,csrfvalue);
-								})
+
 								
 							
 							</sec:authorize>
@@ -391,7 +398,7 @@ $(document).ready(
 									modal.data("rno",ReplyVO.rno);
 									
 									modal.find("button[id = 'modalRegisterBtn']").hide();
-									
+									modal.find("button[id!= 'modalRegisterBtn']").show();
 									modal.modal("show");
 									
 								})
@@ -461,7 +468,6 @@ $(document).ready(
 								var operation = $(this).data("oper");
 
 								if (operation === "modify") {
-
 									operForm.submit();
 								} else {
 									operForm.attr("action", "/board/list");
@@ -476,7 +482,4 @@ $(document).ready(
 
 						})
 	</script>
-
-
-</body>
 </html>

@@ -39,9 +39,11 @@ public class BoardServiceImpl implements BoardService {
 		});
 		
 	}
-
+	
 	@Override
+	@Transactional
 	public BoardVO get(Long bno) {
+		mapper.updateReplyCnt(bno, 1);
 		return mapper.read(bno);
 	}
 

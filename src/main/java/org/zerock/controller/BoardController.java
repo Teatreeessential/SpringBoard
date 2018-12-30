@@ -1,6 +1,8 @@
 package org.zerock.controller;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -75,9 +77,8 @@ public class BoardController {
 	public String register(BoardVO board, RedirectAttributes rttr) {
 		log.info("register...");
 		//bno 값은 언제 들어가게 되는건가?
-		log.info("-----------------------------------");
-		log.info(board.getBno());
-		board.getAttachList().forEach(attach -> log.info(attach));
+		log.info("------------register");
+		System.out.println(board);
 		service.register(board);
 		rttr.addFlashAttribute("result",board.getBno());
 		return "redirect:/board/list";
@@ -125,7 +126,10 @@ public class BoardController {
 	public ResponseEntity<List<BoardAttachVO>> getAttachList(Long bno){
 		return new ResponseEntity<List<BoardAttachVO>>(service.getAttachList(bno),HttpStatus.OK);
 	}
-	
+	@GetMapping("/accessError")
+	public String accessError() {
+		return "/accessError";
+	}
 	
 	
 	

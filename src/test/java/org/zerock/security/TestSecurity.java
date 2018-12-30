@@ -1,10 +1,10 @@
 package org.zerock.security;
 
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.zerock.domain.MemberVO;
@@ -26,16 +26,10 @@ public class TestSecurity {
 		MemberVO vo = mapper.read("admin90");
 		
 		BCryptPasswordEncoder bc = new BCryptPasswordEncoder();
-		String pw =bc.encode("pw"+90);
 		
 		System.out.println("==================================");
 		
-		log.info(pw);
-		log.info(vo.getUserpw());
-		if(pw.equals(vo.getUserpw())){
-			System.out.println("비밀번호 같음");
-		}
-		
+		System.out.println(bc.matches("pw90", bc.encode("pw90")));
 		
 		System.out.println("==================================");
 		

@@ -41,7 +41,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							<c:forEach items="${list}" var="board">
+							<c:forEach items="${list}" var="board" >
 								<tr>
 									<td><c:out value="${board.bno}" /></td>
 									<td><a class="move" href="<c:out value="${board.bno}"/>">

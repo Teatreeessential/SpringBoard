@@ -70,7 +70,7 @@
 						<input type ="hidden" name="type" value="<c:out value='${cri.type}'/>"/>
 						<sec:authentication property="principal" var="pinfo"/>
 						<sec:authorize access="isAuthenticated()">
-							<c:if test="${pinfo.username eq board.userwriter }">
+							<c:if test="${pinfo.username eq board.writer }">
 							<button data-oper="modify" type="submit" class="btn btn-default">
 								Modify</button>
 							<button data-oper="remove" type="submit" class="btn btn-danger">
