@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +19,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.zerock.domain.BoardAttachVO;
+import org.zerock.domain.BoardPointVO;
 import org.zerock.domain.BoardVO;
 import org.zerock.domain.Criteria;
 import org.zerock.domain.PageDTO;
@@ -84,9 +87,15 @@ public class BoardController {
 		return "redirect:/board/list";
 	}
 	@GetMapping({"/get","/modify"})
-	public void get(@RequestParam("bno") Long bno,@ModelAttribute("cri") Criteria cri , Model model) {
+	public void get(@RequestParam("bno") Long bno,@ModelAttribute("cri") Criteria cri , Model model,Principal principal) {
 		log.info("/get...");
-		model.addAttribute("board",service.get(bno));
+		try {
+			model.addAttribute("isrecommend", service.isrecommend(principal.getName(),bno));
+		}catch(NullPointerException e) {
+			model.addAttribute("isrecommend",false);
+		}finally {
+			model.addAttribute("board",service.get(bno));
+		}
 	}
 	@PreAuthorize("principal.username == #board.writer")
 	@PostMapping("/modify")
@@ -126,6 +135,47 @@ public class BoardController {
 	public ResponseEntity<List<BoardAttachVO>> getAttachList(Long bno){
 		return new ResponseEntity<List<BoardAttachVO>>(service.getAttachList(bno),HttpStatus.OK);
 	}
+
+	@GetMapping(value="/addpoint",produces="text/plain;charset=UTF-8")
+	public ResponseEntity<String> addPoint(@RequestParam Long bno,Principal principal) {
+		System.out.println(bno);
+		
+		if(principal==null) {
+			return new ResponseEntity<String>("false",HttpStatus.OK);
+		}else {
+			BoardPointVO vo = new BoardPointVO();
+			vo.setUserid(principal.getName());
+			vo.setBno(bno);
+			if(service.plusMemberClickPoint(vo)) { //true일 경우 추천하지 않은 게시글이고 정상적으로 추천됨 //그냥 url로 들어오면 차단
+				return new ResponseEntity<String>("추천 하셨습니다.",HttpStatus.OK);
+			}else {
+				return new ResponseEntity<String>("이미 추천한 게시글 입니다.",HttpStatus.OK);
+			}
+		}
+		
+	}
+	
+	@GetMapping(value="/minuspoint",produces="text/plain;charset=UTF-8")
+	public ResponseEntity<String> minusPoint(@RequestParam Long bno,Principal principal) {
+		if(principal==null) {
+			return new ResponseEntity<String>("false",HttpStatus.OK);
+		}else {
+			BoardPointVO vo = new BoardPointVO();
+			vo.setUserid(principal.getName());
+			vo.setBno(bno);
+			if(service.minusMemberClickPoint(vo)) { //true일 경우 추천하지 않은 게시글이고 정상적으로 추천됨 //그냥 url로 들어오면 차단
+				return new ResponseEntity<String>("추천 취소하셨습니다.",HttpStatus.OK);
+			}else {
+				return new ResponseEntity<String>("올바른 경로로 접근해주세요",HttpStatus.OK);
+			}
+		}
+		
+		
+	}
+	
+	
+	
+	
 	@GetMapping("/accessError")
 	public String accessError() {
 		return "/accessError";

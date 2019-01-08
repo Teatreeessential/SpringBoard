@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zerock.mapper.FriendMapper">
+
+	<select id="alreadyFriend" resultType="org.zerock.domain.FriendVO">
+		select *
+		from tbl_friend
+		where userid1=#{userid1} and userid2=#{userid2}
+	</select>
+	<insert id="requestFriend">
+		insert into tbl_friend 
+		values (#{userid1},#{userid2},#{accept})
+	</insert>
+	<update id="addFriend">
+		update tbl_friend set accept = #{accept}
+		where userid1=#{userid1} and userid2=#{userid2}
+	</update>
+	<delete id="removeFriend">
+		delete from tbl_friend
+		where userid1=#{userid1} and userid2=#{userid2}
+	</delete>
+	<select id="getFriend" resultType="org.zerock.domain.FriendVO">
+		select userid1,userid2,accept
+		from tbl_friend
+		where userid1=#{userid} and accept = 1
+		union
+		select userid1,userid2,accept
+		from tbl_friend
+		where userid2=#{userid} and accept = 1
+	</select>
+	<select id="getRequestFriend" resultType="org.zerock.domain.FriendVO">
+		select userid1,userid2,accept
+		from tbl_friend
+		where userid2=#{userid} and accept = 0
+	</select>
+	
+	
+	
+</mapper>

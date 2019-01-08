@@ -66,11 +66,11 @@
 
 	<select id="getListWithPaging" resultType="org.zerock.domain.BoardVO">
  		 	<![CDATA[
-  			select replyCnt,bno,title,content,writer,regdate,updatedate
+  			select replyCnt,bno,title,content,writer,regdate,updatedate,point
   			from
   				(
   				select /*+INDEX_DESC(tbl_board pk_board)*/
-  					rownum rn,replyCnt,bno,title,content,writer,regdate,updatedate
+  					rownum rn,replyCnt,bno,title,content,writer,regdate,updatedate,point
   				from
   				tbl_board
   				where
@@ -99,6 +99,17 @@
 		update tbl_board set replyCnt = replyCnt + #{amount}
 		where bno = #{bno}
 	</update>
+	
+	<update id="plusBoardPoint" >
+		update tbl_board set point= point+1
+		where bno = #{bno}
+	</update>
+	
+	<update id="minusBoardPoint">
+		update tbl_board set point = point-1
+		where bno = #{bno}
+	</update>
+	
 
 </mapper>
  

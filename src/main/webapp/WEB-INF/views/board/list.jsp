@@ -36,8 +36,10 @@
 								<th>#번호</th>
 								<th>제목</th>
 								<th>작성자</th>
+								<th>추천수</th>
 								<th>작성일</th>
 								<th>수정일</th>
+								
 							</tr>
 						</thead>
 						<tbody>
@@ -48,7 +50,20 @@
 											<c:out value="${board.title}" /> 
 											<b>[<c:out value="${board.replyCnt}" />]</b>
 									</a></td>
-									<td><c:out value="${board.writer}" /></td>
+									<td>
+									<span class="dropdown">
+									<a href="#"class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><c:out value="${board.writer}" /></a>
+									<!-- 친구추가 창 -->
+									<ul class="dropdown-menu">
+				                        <li><a href="${board.writer}" class="addfriend"><i class="fa fa-user fa-fw"></i> 친구추가</a>
+				                        </li>
+				                        <li><a href="${board.writer}" class="addfriend"><i class="fa fa-envelope fa-fw"></i>쪽지보내기</a>
+				                        </li>
+				                    </ul>
+									</span>
+									</td>
+									
+									<td><c:out value="${board.point}"/></td>
 									<td><fmt:formatDate pattern="yyyy-MM-dd"
 											value="${board.regdate}" /></td>
 									<td><fmt:formatDate pattern="yyyy-MM-dd"
@@ -56,6 +71,7 @@
 								</tr>
 							</c:forEach>
 					</table>
+					
 					<!-- 검색 처리-->
 					<form id="searchform" action="/board/list" method="get">
 						<select name="type">
@@ -70,7 +86,7 @@
 						<input type="text" name="keyword" value='<c:out value="${pageMaker.cri.keyword}"/>'/>
 						<input type="hidden" name="pageNum" value="${pageMaker.cri.pageNum}"/>
 						<input type="hidden" name="amount" value="${pageMaker.cri.amount}"/>
-						<button class="btn btn-default">Search</button>
+						<button class="btn btn-default">Search <i class="fa fa-search"></i></button>
 					</form>
 					<!-- 페이징 처리 -->
 					<div class="pull-right">
@@ -190,7 +206,20 @@
 						searchform.submit();
 						
 					})
-					
+					//친구 추가 창 관련 toggle
+					$(".addfriend").on("click",function(e){
+						e.preventDefault();
+						let userid=$(this).attr("href")
+						console.log("userid")
+						$.ajax({
+							type:'get',
+							url:'/user/requestfriend',
+							data:{userid:userid},
+							success:function(result){
+								alert(result);
+							}
+						})
+					})
 				})
 	</script>
 

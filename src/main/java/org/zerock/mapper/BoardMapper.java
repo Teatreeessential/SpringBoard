@@ -27,5 +27,9 @@ public interface BoardMapper {
 	
 	public void updateReplyCnt(@Param("bno") Long bno,@Param("amount") int amount);
 	
+	public void plusBoardPoint(Long bno);
+	
+	public void minusBoardPoint(Long bno);
+	
 	
 }

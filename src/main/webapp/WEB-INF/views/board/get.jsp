@@ -73,7 +73,18 @@
 							</sec:authorize>
 						
 						<button data-oper="list" class="btn btn-info">List</button>
-					</div>
+					</div></br>
+					<!-- 현재 로그인 상태이고 추천한 상태일경우 빨간버튼 , 그렇지않을경우 노란 버튼, 비로그인 상태일경우 로그인 창으로 이동 -->
+						<div class="recommend">
+						<c:choose>
+					         <c:when test = "${isrecommend}">
+					         <button type="button" class="btn btn-danger" data-oper="cancel">추천취소</button>
+					         </c:when>
+					         <c:otherwise>
+					         <button type="button" class="btn btn-warning" data-oper="recommend">추천</button>
+					         </c:otherwise>
+					    </c:choose>
+					    </div>
 					<form id="operForm" action="/board/modify" method="get">
 						<input type="hidden" id="bno" name="bno"
 							value="<c:out value="${board.bno}"/>"> <input
@@ -163,7 +174,7 @@
 
 
 
-
+<div></div>
 
 </body>
 <script type="text/javascript" src="/resources/js/Reply.js"></script>
@@ -174,20 +185,70 @@ $(document).ready(
 					
 						function() {
 							
-
+							var bno = "<c:out value='${board.bno}'/>";
 							
 							(function(){
-								let bno = "<c:out value='${board.bno}'/>";
-								
 								$.getJSON("/board/getAttachList",{bno:bno},function(arr){
 									showUploadResult(arr);
 								});
 							})();
 							
-						
+							//추천수 관련 로직 이벤트 위임
+							$(".recommend").on("click","button",function(){
+								let button = $(this)
+								let status = button.data("oper")
+								console.log(button)
+								console.log(status)
+								if(status=="recommend"){
+									$.ajax({
+										type:'get',
+										url:'/board/addpoint',
+										data:{bno:bno},
+										contentType:'application/json; charset=utf-8',
+										success: function(result){
+											if(result==="false"){
+												alert("로그인 후 가능 합니다.");
+											}else{
+												alert(result);
+												button.text('추천취소');
+												button.attr({
+													'class':'btn btn-danger'
+												})
+												button.data('oper','cancel')
+											}
+											
+											
+											
+										}
+											
+									})
+									
+								}else{
+									$.ajax({
+										type:'get',
+										url:'/board/minuspoint',
+										data:{bno:bno},
+										contentType:'application/json; charset=utf-8',
+										success: function(result){
+											if(result==="false"){
+												alert("로그인 후 가능 합니다.");
+											}else{
+												alert(result);
+												button.text('추천');
+												button.attr({
+													'class':'btn btn-warning'
+												})
+												button.data('oper','recommend')
+											}
+											
+											
+										}
+											
+									})
+								}
+							})
 							
 							
-							console.log("test");
 							var bnoValue = '<c:out value="${board.bno}"/>';
 							var replyUL = $(".chat");
 							var pageNum = 1;
@@ -243,10 +304,8 @@ $(document).ready(
 								let str = "";
 
 								$(uploadResultArr).each(function(i,obj){
-									console.log(obj)
 									if(obj.fileType){
 										let fileCallPath = encodeURIComponent(obj.uploadPath+"\\s_"+obj.uuid+"_"+obj.fileName);
-										console.log(fileCallPath);
 										str += "<li data-path='"+obj.uploadPath+"'"
 										str += " data-type='"+true+"'"
 										str += " data-filename='"+obj.fileName+"'"
@@ -329,7 +388,6 @@ $(document).ready(
 							
 							//reply 등록 조회 수정 삭제
 							var modal = $(".modal");
-							console.log(modal)
 							var modalInputReply = modal
 									.find("input[name='reply']");
 							var modalInputReplyer = modal

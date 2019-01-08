@@ -26,4 +26,5 @@
 		where mem.userid = #{userid}
 	</select>
 	
+
 </mapper>

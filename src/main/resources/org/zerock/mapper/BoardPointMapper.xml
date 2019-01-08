@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zerock.mapper.BoardPointMapper">
+
+	<select id="IsClick" resultType="int">
+		select count(*)
+		from boardpoint
+		where userid=#{userid} and bno=#{bno}
+	</select>
+	
+	<insert id="insertBoardPoint">
+		insert into BOARDPOINT (userid,bno) values (#{userid},#{bno})
+	</insert>
+	
+	<delete id="deleteBoardPoint">
+		delete from boardpoint
+		where userid = #{userid} and bno = #{bno}
+	</delete>
+
+</mapper>
