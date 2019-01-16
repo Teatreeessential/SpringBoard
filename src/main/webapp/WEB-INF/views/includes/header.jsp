@@ -286,6 +286,11 @@
                         <li>
                             <a href="/user/friend"><i class="fa fa-user fa-fw"></i>친구창</a>
                         </li>
+                        <li>
+                            <a href="/user/friend"><i class="glyphicon-user"></i>내 프로필</a>
+                        </li>
+                      
+                        
                         </sec:authorize>
                       
 							

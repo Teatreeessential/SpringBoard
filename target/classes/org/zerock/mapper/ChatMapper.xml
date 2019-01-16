@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zerock.mapper.ChatMapper">
+	<select id="getChatList" resultType="org.zerock.domain.ChatVO">
+		select *
+		from tbl_chat
+		where CHAT_ROOM_NUM = #{chatroomnum} 
+	</select>
+	<insert id="insertChat">
+		insert into tbl_chat values(#{chat_room_num},#{userid},#{message},#{message_date})
+	</insert>
+</mapper>

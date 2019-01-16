@@ -78,10 +78,10 @@
 						<div class="recommend">
 						<c:choose>
 					         <c:when test = "${isrecommend}">
-					         <button type="button" class="btn btn-danger" data-oper="cancel">추천취소</button>
+					         <button type="button" class="btn btn-danger" data-oper="cancel">추천취소<i class="fa-thumbs-down"></i></button>
 					         </c:when>
 					         <c:otherwise>
-					         <button type="button" class="btn btn-warning" data-oper="recommend">추천</button>
+					         <button type="button" class="btn btn-warning" data-oper="recommend">추천 <i class="fa-thumbs-up"></i></button>
 					         </c:otherwise>
 					    </c:choose>
 					    </div>

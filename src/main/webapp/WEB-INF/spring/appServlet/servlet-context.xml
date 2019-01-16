@@ -4,10 +4,13 @@
 	xmlns:beans="http://www.springframework.org/schema/beans"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
 	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.3.xsd
 		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
 
 	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
 	
@@ -35,5 +38,12 @@
 	</beans:bean>
 	
 	<security:global-method-security pre-post-annotations="enabled" secured-annotations="enabled"></security:global-method-security>
+	
+	<websocket:handlers>
+        <websocket:mapping path="/Chatting" handler="Chatting"/>
+    </websocket:handlers>
+
+	<beans:bean id="Chatting" class="org.zerock.chat.Chatting"/>
+	
 	
 </beans:beans>
