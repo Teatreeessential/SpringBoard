@@ -63,7 +63,10 @@
             text-decoration: none;
             cursor: pointer;
         }
-
+.chat-panel {
+    height: 350px;
+    overflow-y: auto;
+}
 </style>
 </head>
 <body>
@@ -119,7 +122,7 @@
 
 						<a href="#" class="list-group-item">
 							<div class="row">
-								<span class="friend">${fn:substringBefore(item, '_')} </span>
+								<span class="friend">${fn:substringBefore(item,'_')}</span>
 								 <span class="notification hidden-xs">5</span>
 								<button class="btn btn-primary pull-right chat_button"
 									 data-chat_room_num="${fn:substringAfter(item, '_')}">
@@ -138,7 +141,6 @@
 	</div>
 	<!-- 모달 채팅창 -->
 	<div class="modal">
-		style="display: none;">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -147,7 +149,7 @@
 					<h4 class="modal-title" id="myModalLabel">채팅창</h4>
 				</div>
 
-				<div class="panel-body">
+				<div class="chat-panel">
 					<ul class="chat">
 						<!-- 채팅 내용 달려 있음 -->
 					</ul>
@@ -156,8 +158,8 @@
 				<div class="panel-footer">
 					<div class="input-group">
 						<input id="btn-input" type="text" class="form-control input-sm"
-							placeholder="Type your message here..."> <span
-							class="input-group-btn">
+							placeholder="Type your message here..."> 
+						<span class="input-group-btn">
 							<button class="btn btn-warning btn-sm" id="btn-chat">
 								Send</button>
 						</span>
@@ -262,13 +264,13 @@ $(document).ready(function() {
 					for(let i=0;i<result.length;i++){
 						//userid가 상대방것일 경우 왼쪽으로
 						if(result[i].userid!=`${userid}`){
-								str	+=	`<li class="right clearfix"><span class="chat-img pull-left">`;
-								str +=	`<img src="http://placehold.it/50/FA6F57/fff" alt="User Avatar" class="img-circle">`;
+								str	+=	`<li class="left clearfix"><span class="chat-img pull-left">`;
+								str +=	`<img src="http://placehold.it/50/55C1E7/fff" alt="User Avatar" class="img-circle">`;
 								str	+= 	`</span>`
 								str	+=	`<div class="chat-body clearfix">`;
 								str	+=	`<div class="header">`;
-								str	+=	`</small> <strong class="pull-right primary-font">`+result[i].userid+`</strong>`;
-								str	+=	`<small class=" text-muted"> <i class="fa fa-clock-o fa-fw"></i>`+result[i].message_date;
+								str	+=	`<strong class="primary-font">`+result[i].userid+`</strong>`;
+								str	+=	`<small class="pull-right text-muted"><i class="fa fa-clock-o fa-fw"></i>`+result[i].message_date+`</small>`;
 								str	+=	`</div>`;
 								str	+=	`<p>`+result[i].message+`</p>`;
 								str	+=	`</div></li>`;
@@ -279,21 +281,23 @@ $(document).ready(function() {
 								str	+= 	`</span>`
 								str	+=	`<div class="chat-body clearfix">`;
 								str	+=	`<div class="header">`;
-								str	+=	`<small class=" text-muted"> <i class="fa fa-clock-o fa-fw"></i>`+result[i].message_date;
-								str	+=	`</small> <strong class="pull-right primary-font">`+result[i].userid+`</strong>`;
+								str	+=	`<small class=" text-muted"><i class="fa fa-clock-o fa-fw"></i>`+result[i].message_date+`</small>`
+								str	+=	`<strong class="pull-right primary-font">`+result[i].userid+`(나)</strong>`;
 								str	+=	`</div>`;
-								str	+=	`<p>`+result[i].message+`</p>`;
+								str	+=	`<p class="pull-right">`+result[i].message+`</p>`;
 								str	+=	`</div></li>`;
 						}
 						
 					}	
 				}
+				
 				chat.chat_room_num = chat_room_num;
 				chat.opponent_userid = opponent_userid;
 				chat.userid = `${userid}`;
 				chat.message_date =new Date().format("yyyy.MM.dd.hh:mm:ss")
 				$(".chat").append(str);
 				$(".modal").css('display','block');
+				$(".chat-panel").scrollTop($(".chat-panel")[0].scrollHeight);
 			}
 			
 		})
@@ -310,17 +314,19 @@ $(document).ready(function() {
 			chat.message = $(this).val();
 			//보내기전 대화를 append
 			writeResponse(chat);
+			console.log(chat);
 			//send로 보낸 뒤 db에 저장
 			send(chat);
 			//보낸뒤 text부분은 다시 초기화 시켜야하므로
 			$(this).val("");
+			
 		}
 	})
 	$("#btn-chat").on("click",function(key){
-			chat.message = $(this).val();
+			chat.message = $(this).closest(".input-group").find("#btn-input").val();
 			writeResponse(chat);
 			send(chat);
-			$(this).val("");
+			$(this).closest(".input-group").find("#btn-input").val("");
 	})
 	
 	//웹소켓 생성 및 정의 소켓은 해당페이지 방문시 바로 함수실행 후 생성
@@ -334,7 +340,7 @@ $(document).ready(function() {
             if(event.data===undefined) return;
         };
         ws.onmessage=function(event){
-            writeResponse(event.data,1);
+            writeResponse(JSON.parse(event.data),1);
         };
         ws.onclose=function(event){
             writeResponse("Connection closed");
@@ -355,13 +361,13 @@ $(document).ready(function() {
     	//who 1은 상대방 0은 나
     	let str="";
     	if(who===1){
-			str	+=	`<li class="right clearfix"><span class="chat-img pull-left">`;
-			str +=	`<img src="http://placehold.it/50/FA6F57/fff" alt="User Avatar" class="img-circle">`;
+    		str	+=	`<li class="left clearfix"><span class="chat-img pull-left">`;
+			str +=	`<img src="http://placehold.it/50/55C1E7/fff" alt="User Avatar" class="img-circle">`;
 			str	+= 	`</span>`
 			str	+=	`<div class="chat-body clearfix">`;
 			str	+=	`<div class="header">`;
-			str	+=	`<small class=" text-muted"> <i class="fa fa-clock-o fa-fw"></i>`+chat.message_date;
-			str	+=	`</small> <strong class="pull-right primary-font">`+chat.opponent_userid+`</strong>`;
+			str	+=	`<strong class="primary-font">`+chat.userid+`</strong>`;
+			str	+=	`<small class="pull-right text-muted"><i class="fa fa-clock-o fa-fw"></i>`+chat.message_date+`</small>`;
 			str	+=	`</div>`;
 			str	+=	`<p>`+chat.message+`</p>`;
 			str	+=	`</div></li>`;
@@ -371,16 +377,21 @@ $(document).ready(function() {
 			str	+= 	`</span>`
 			str	+=	`<div class="chat-body clearfix">`;
 			str	+=	`<div class="header">`;
-			str	+=	`<small class=" text-muted"> <i class="fa fa-clock-o fa-fw"></i>`+chat.message_date;
-			str	+=	`</small> <strong class="pull-right primary-font">`+chat.userid+`</strong>`;
+			str	+=	`<small class=" text-muted"> <i class="fa fa-clock-o fa-fw"></i>`+chat.message_date+`</small>`;
+			str	+=	`<strong class="pull-right primary-font">`+chat.userid+`(나)</strong>`;
 			str	+=	`</div>`;
-			str	+=	`<p>`+chat.message+`</p>`;
+			str	+=	`<p class="pull-right">`+chat.message+`</p>`;
 			str	+=	`</div></li>`;
 		}
     	$(".chat").append(str);
-        
+    	//스크롤 당기기
+    	$(".chat-panel").scrollTop($(".chat-panel")[0].scrollHeight);
+		
     }
 	
 })
+
+
+
 </script>
 </html>
