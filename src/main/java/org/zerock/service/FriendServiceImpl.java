@@ -4,18 +4,25 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.zerock.domain.ChatCountVO;
 import org.zerock.domain.ChatVO;
 import org.zerock.domain.FriendVO;
+import org.zerock.mapper.ChatMapper;
 import org.zerock.mapper.FriendMapper;
 
 import lombok.Setter;
+import lombok.extern.log4j.Log4j;
 
 @Service
+@Log4j
 public class FriendServiceImpl implements FriendService {
 
 	@Setter(onMethod_=@Autowired)
 	private FriendMapper mapper;
 	//이미 친구요청을 했는지 또는 이미 친구인지의 유효성을 파악하는 메서드
+	@Setter(onMethod_=@Autowired)
+	private ChatMapper chat_mapper;
 	@Override
 	public FriendVO alreadyFriend(FriendVO vo) {
 		try {
@@ -46,11 +53,28 @@ public class FriendServiceImpl implements FriendService {
 		}
 
 	@Override
+	@Transactional
 	//내가 userid2인 경우에만 accept를 시키는 것이므로 
 	public boolean addFriend(FriendVO vo) {
 		//delete update 문에서는 시퀀스 x 그래서 select문으로 가져와 insert 하는 쪽으로 해결
-		vo.setChat_room_num(mapper.getchatRoomNum());
-		return mapper.addFriend(vo);
+		//일단 친구추가 accept 1로 변경 chat room 추가
+		try {
+			int chat_room_num = mapper.getchatRoomNum();
+			vo.setChat_room_num(chat_room_num);
+			mapper.addFriend(vo);
+			//채팅 카운트 세는 테이블에 값을 insert
+			ChatCountVO chatcountvo = new ChatCountVO();
+			chatcountvo.setChat_room_num(chat_room_num);
+			chatcountvo.setChat_count(0);
+			chatcountvo.setUserid(vo.getUserid1());
+			chat_mapper.addChatCount(chatcountvo);
+			chatcountvo.setUserid(vo.getUserid2());
+			chat_mapper.addChatCount(chatcountvo);
+			return true;
+		}catch(Exception e) {
+			log.info("addFriend 메서드 호출 중 에러");
+			return false;
+		}
 	}
 
 

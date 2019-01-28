@@ -123,9 +123,9 @@
 						<a href="#" class="list-group-item">
 							<div class="row">
 								<span class="friend">${fn:substringBefore(item,'_')}</span>
-								 <span class="notification hidden-xs">5</span>
+								 <span class="notification hidden-xs" opponent_userid="${fn:substringBefore(item,'_')}">${fn:substringAfter(item,'-')}</span>
 								<button class="btn btn-primary pull-right chat_button"
-									 data-chat_room_num="${fn:substringAfter(item, '_')}">
+									 data-chat_room_num="${fn:substring(item,fn:indexOf(item,'_')+1,fn:indexOf(item,'-'))}">
 									<i class="fa fa-comments"></i> 채팅하기
 								</button>
 								</button>
@@ -249,12 +249,22 @@ $(document).ready(function() {
 		})
 	})
 	$(".chat_button").on("click",function(){
-		let chat_room_num = $(this).data("chat_room_num");
-		let opponent_userid = $(this).closest(".list-group-item").find(".friend").text();
+		let button = $(this)
+		let chat_room_num = button.data("chat_room_num");
+		let opponent_userid = button.closest(".list-group-item").find(".friend").text();
 		console.log(typeof opponent_userid);
 		$.ajax({
+			url:"/reset",
+			data:{chatRoomNum:chat_room_num},
+			success:function(result){
+				button.closest(".list-group-item").find(".notification").text(result);
+				console.log(button.closest(".list-group-item").find(".notification").text(result));
+				
+			}
+		})
+		$.ajax({
 			url:"/chat",
-			type:"get",
+			type:"get", 
 			data:{chatRoomNum:chat_room_num},
 			async: false,
 			success:function(result){
@@ -340,7 +350,12 @@ $(document).ready(function() {
             if(event.data===undefined) return;
         };
         ws.onmessage=function(event){
-            writeResponse(JSON.parse(event.data),1);
+        	
+        	let data = JSON.parse(event.data);
+        	console.log(data);
+        	$(".notification[opponent_userid='"+data.userid+"']").text(data.count);
+        	writeResponse(data,1);
+        	
         };
         ws.onclose=function(event){
             writeResponse("Connection closed");

@@ -39,9 +39,9 @@ public class FriendController {
 			List<String> chat_room_nums;
 			List<String> friends = service.getFriend(principal.getName()).stream().map(val -> {
 				if(val.getUserid1().equals(principal.getName())) {
-					return val.getUserid2()+"_"+val.getChat_room_num();
+					return val.getUserid2()+"_"+val.getChat_room_num()+"-"+val.getChat_count();
 				}else {
-					return val.getUserid1()+"_"+val.getChat_room_num();
+					return val.getUserid1()+"_"+val.getChat_room_num()+"-"+val.getChat_count();
 				}
 			}).collect(()-> new ArrayList<String>(),
 						(c,s) -> c.add(s),

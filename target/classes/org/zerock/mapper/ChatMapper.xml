@@ -5,10 +5,35 @@
 <mapper namespace="org.zerock.mapper.ChatMapper">
 	<select id="getChatList" resultType="org.zerock.domain.ChatVO">
 		select *
-		from tbl_chat
-		where CHAT_ROOM_NUM = #{chatroomnum} 
+		from (select /*+INDEX_DESC(tbl_chat idx_tbl_chat)*/ *
+			  from tbl_chat
+			  where CHAT_ROOM_NUM = #{chatroomnum}) a
+		order by a.chat_count
+			  	  
 	</select>
 	<insert id="insertChat">
-		insert into tbl_chat values(#{chat_room_num},#{userid},#{message},#{message_date})
+		insert into tbl_chat values(#{chat_room_num},#{userid},#{message},#{message_date},tbl_chat_seq.nextval)
 	</insert>
+	
+	<insert id="addChatCount">
+		insert into tbl_chat_count values(#{chat_room_num},#{userid},#{chat_count})
+	</insert>
+	
+	<select id="selectChatCount" resultType="int">
+		select chat_count+1 from tbl_chat_count
+		where chat_room_num = #{chat_room_num} and userid= #{userid}  
+	</select>
+	
+	<update id="updateChatCount">
+		update tbl_chat_count set chat_count = chat_count+1
+		where chat_room_num = #{chat_room_num} and userid= #{userid}
+	</update>
+	
+	<update id="resetChatCount">
+		update tbl_chat_count set chat_count = 0
+		where chat_room_num = #{chat_room_num} and userid= #{userid}
+	</update>
+		
+
+	
 </mapper>

@@ -22,18 +22,21 @@
 		update tbl_friend set accept= #{accept}, chat_room_num =#{chat_room_num}
 		where userid1=#{userid1} and userid2=#{userid2}
 	</update>
+	
 	<delete id="removeFriend">
 		delete from tbl_friend
 		where userid1=#{userid1} and userid2=#{userid2}
 	</delete>
 	<select id="getFriend" resultType="org.zerock.domain.FriendVO">
-		select *
-		from tbl_friend
-		where userid1=#{userid} and accept = 1
-		union
-		select *
-		from tbl_friend
-		where userid2=#{userid} and accept = 1
+		select a.*,b.chat_count
+		from 	(select *
+				from tbl_friend
+				where userid1=#{userid} and accept = 1
+				union
+				select *
+				from tbl_friend
+				where userid2=#{userid} and accept = 1) a, tbl_chat_count b
+		where a.chat_room_num = b.chat_room_num and b.userid = #{userid}  		
 	</select>
 	<select id="getRequestFriend" resultType="org.zerock.domain.FriendVO">
 		select *
